@@ -1,0 +1,17 @@
+{
+    "name": "jesseDMoore1994/acme",
+    "description": "Acme Project for CS 553",
+    "authors": [
+        {
+            "name": "Jesse Moore",
+            "email": "jdm0032@uah.edu"
+        }
+    ],
+    "require": {
+        "php": "~7.2.0",
+        "phpunit/phpunit": "^7"
+    },
+    "autoload": {
+        "classmap": ["app/"]
+    }
+}

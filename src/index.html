@@ -1,0 +1,56 @@
+<html>
+	<head>
+		<title>Acme Products</title>
+	</head>
+    <body>
+    <h1 id="myHeader"> Welcome To Acme Products! </h1>
+    <p> This page is a for ordering from Acme, Big Stuff, and Little Stuff. </p>
+    <form action = "simple_server.php">
+        <h2> 
+            Please select your items:
+        </h2> 
+        <p> 
+            <input type="checkbox" name="items" value="Bunny"> Stuffed Bunny Rabbit from Acme<br>
+            <input type="checkbox" name="items" value="Large Easter basket"> Easter Basket (Large) from Big Stuff<br>
+            <input type="checkbox" name="items" value="Small Easter basket"> Easter Basket (Small) from Big Stuff<br>
+            <input type="checkbox" name="items" value="Easter Egg"> Toy Easter Egg from Little Stuff<br>
+        </p>
+            
+        <h2> 
+            Would you like your items grouped?
+        </h2>
+        <p> 
+            <input type="radio" name="grouped" value="yes" checked> Yes<br>
+            <input type="radio" name="grouped" value="no"> No<br>
+        </p>
+            
+        <h2> 
+            Enter your requested date of arrival: <input type="text" name="myname" />
+        </h2>
+            
+            <button type = "button"  onclick = "doAJAXstuff(this.form)">
+                Place Order!
+            </button>
+        </p>
+    </form>
+
+    <center><h1> Issued Orders: (items that are grouped will be listed in the same row)</h1></center>
+	<table style="width:90%">
+	  <tr>
+	    <th>Package Items</th>
+	    <th>Estimated Time</th> 
+	    <th>Requested Time</th>
+		<th>Actual Time</th>
+	  </tr>
+	</table>
+	<!--body>
+		<input id="x" type="text">
+		<input id="y" type="text">
+		<input id="add" type="button" value="Add Numbers">
+		Result: <span id="result" />
+		<script type="text/javascript" src="js/calculator.js"></script>
+		<script>
+			calculator.init();
+		</script>
+	</body-->
+</html>
