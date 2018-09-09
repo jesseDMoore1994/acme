@@ -16,8 +16,9 @@ undeploy:
 	@-docker rm -f acme-project
 
 .PHONY: clean
-clean: stop-deploy
+clean: undeploy
 	@-docker rmi -f php:7.2-apache
+	@-rm .test-php-docker-meta .test-js-docker-meta
 
 .test-php-docker-meta: $(pwd)/config/composer.json
 	docker build -t php_tester:v$(php_tester_version) -f Dockerfile.test.php .
