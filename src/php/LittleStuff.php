@@ -3,8 +3,9 @@ namespace AcmeProject;
 
 final class LittleStuff
 {
-    private static $avg_time;
-    private static $num_orders;
+    private $avg_time;
+    private $num_orders;
+    private $shipped_notices;
 
     private function recalculateAvgTime(float $wait_time): void
     {
@@ -30,7 +31,7 @@ final class LittleStuff
         if(gettype($order) == 'string') {
             $this->validateItem($order);
         } else {
-            throw new InvalidArgumentException(
+            throw new \InvalidArgumentException(
                 sprintf(
                     'order format is not recognized.'
                 )
@@ -42,14 +43,17 @@ final class LittleStuff
     {
         $this->avg_time = 7.5;
         $this->num_orders = 1;
+        $this->shipped_notices = [];
     }
 
-    public function processOrder($order): string
+    public function processOrder($order, $shipto): string
     {
         $this->ensureIsValidOrder($order);
         $wait_time = 7.5 + 2.5 * (mt_rand() / mt_getrandmax());
         sleep($wait_time);
         $this->recalculateAvgTime($wait_time);
+        $notice_str = $order . ' shipped from Little Stuff to ' . $shipto . '.';
+        array_push($this->shipped_notices, $notice_str);
         return $order;
 
     }
@@ -58,6 +62,29 @@ final class LittleStuff
     {
         return $this->avg_time;
     }
-}
 
+    public function getShippedNotices(): array
+    {
+        $notices = $this->shipped_notices;
+        $this->shipped_notices = [];
+        return $notices;
+    }
+}
+$little_stuff = NULL;
+session_start();
+if($_SESSION['little_stuff']) {
+    $little_stuff = $_SESSION['little_stuff'];
+} else {
+    $little_stuff = new LittleStuff;
+    $_SESSION['little_stuff'] = $little_stuff;
+}
+if($_REQUEST['proc'] == 'processOrder') { 
+    printf("item: %s", $little_stuff->processOrder($_REQUEST['item'], $_REQUEST['shipTo']));
+}
+if($_REQUEST['proc'] == 'getAvgTime') { 
+    printf("avg time: %f", $little_stuff->getAvgTime());
+}
+if($_REQUEST['proc'] == 'getShippedNotices') {
+    printf("notices: %s", implode('; ', $little_stuff->getShippedNotices()));
+}
 ?>

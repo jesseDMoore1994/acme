@@ -3,8 +3,9 @@ namespace AcmeProject;
 
 final class BigStuff
 {
-    private static $avg_time;
-    private static $num_orders;
+    private $avg_time;
+    private $num_orders;
+    private $shipped_notices;
 
     private function recalculateAvgTime(float $wait_time): void
     {
@@ -34,7 +35,7 @@ final class BigStuff
                 $this->validateItem($item);
             }
         } else {
-            throw new InvalidArgumentException(
+            throw new \InvalidArgumentException(
                 sprintf(
                     'order format is not recognized.'
                 )
@@ -46,17 +47,22 @@ final class BigStuff
     {
         $this->avg_time = 1.0;
         $this->num_orders = 1;
+        $this->shipped_notices = [];
     }
 
-    public function processOrder($order): string
+    public function processOrder($order, $shipto): string
     {
         $this->ensureIsValidOrder($order);
         $wait_time = 1 + 1 * (mt_rand() / mt_getrandmax());
         sleep($wait_time);
         $this->recalculateAvgTime($wait_time);
         if (gettype($order) == 'string') {
+            $notice_str = $order . ' shipped from Big Stuff to ' . $shipto . '.';
+            array_push($this->shipped_notices, $notice_str);
             return $order;
         } else {
+            $notice_str = implode(', ', $order) . ' shipped from Big Stuff to ' . $shipto . '.';
+            array_push($this->shipped_notices, $notice_str);
             return implode(', ', $order);
         } 
 
@@ -66,6 +72,29 @@ final class BigStuff
     {
         return $this->avg_time;
     }
-}
 
+    public function getShippedNotices(): array
+    {
+        $notices = $this->shipped_notices;
+        $this->shipped_notices = [];
+        return $notices;
+    }
+}
+$big_stuff = NULL;
+session_start();
+if($_SESSION['big_stuff']) {
+    $big_stuff = $_SESSION['big_stuff'];
+} else {
+    $big_stuff = new BigStuff;
+    $_SESSION['big_stuff'] = $big_stuff;
+}
+if($_REQUEST['proc'] == 'processOrder') { 
+    printf("item: %s", $big_stuff->processOrder($_REQUEST['item'], $_REQUEST['shipTo']));
+}
+if($_REQUEST['proc'] == 'getAvgTime') { 
+    printf("avg time: %f", $big_stuff->getAvgTime());
+}
+if($_REQUEST['proc'] == 'getShippedNotices') {
+    printf("notices: %s", implode('; ', $big_stuff->getShippedNotices()));
+}
 ?>

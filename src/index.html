@@ -2,7 +2,7 @@
 	<head>
 		<title>Acme Products</title>
 	</head>
-    <body>
+    <body onload="execute_on_page_load()">
     <h1 id="myHeader"> Welcome To Acme Products! </h1>
     <p> This page is a for ordering from Acme, Big Stuff, and Little Stuff. </p>
     <form action = "simple_server.php">
@@ -10,22 +10,22 @@
             Please select your items:
         </h2> 
         <p> 
-            <input type="checkbox" name="items" value="Bunny"> Stuffed Bunny Rabbit from Acme<br>
-            <input type="checkbox" name="items" value="Large Easter basket"> Easter Basket (Large) from Big Stuff<br>
-            <input type="checkbox" name="items" value="Small Easter basket"> Easter Basket (Small) from Big Stuff<br>
-            <input type="checkbox" name="items" value="Easter Egg"> Toy Easter Egg from Little Stuff<br>
+            <input type="checkbox" name="items" value="Bunny"> Stuffed Bunny Rabbit from Acme
+            <input type="checkbox" name="items" value="Large Easter basket"> Easter Basket (Large) from Big Stuff
+            <input type="checkbox" name="items" value="Small Easter basket"> Easter Basket (Small) from Big Stuff
+            <input type="checkbox" name="items" value="Easter Egg"> Toy Easter Egg from Little Stuff
         </p>
             
         <h2> 
             Would you like your items grouped?
         </h2>
         <p> 
-            <input type="radio" name="grouped" value="yes" checked> Yes<br>
-            <input type="radio" name="grouped" value="no"> No<br>
+            <input type="radio" name="grouped" value="yes" checked> Yes
+            <input type="radio" name="grouped" value="no"> No
         </p>
             
         <h2> 
-            Enter your requested date of arrival: <input type="text" name="myname" />
+            Enter your requested date of arrival: <input type="text" name="requested_time" />
         </h2>
             
             <button type = "button"  onclick = "doAJAXstuff(this.form)">
@@ -33,24 +33,61 @@
             </button>
         </p>
     </form>
-
-    <center><h1> Issued Orders: (items that are grouped will be listed in the same row)</h1></center>
-	<table style="width:90%">
+    <h1> Time Estimates: </h1>
+    Big Stuff: <div id="bigStuffEstimate"></div><br>
+    Little Stuff: <div id="littleStuffEstimate"></div><br>
+	<table style="width:100%">
 	  <tr>
-	    <th>Package Items</th>
-	    <th>Estimated Time</th> 
-	    <th>Requested Time</th>
-		<th>Actual Time</th>
+	    <th>Shipping Notices</th>
+	    <th>Orders Issued By Acme</th> 
+	    <th>Orders Assembled By Acme</th>
+		<th>Packages Received</th>
 	  </tr>
+      <tr>
+        <td><textarea id="shippingNotices" rows="16" cols="50"></textarea></td>
+        <td><textarea id="ordersIssued" rows="16" cols="50"></textarea></td>
+        <td><textarea id="ordersAssembled" rows="16" cols="50"></textarea></td>
+        <td><textarea id="packagesReceived" rows="16" cols="50"></textarea></td>
+      </tr>
 	</table>
-	<!--body>
-		<input id="x" type="text">
-		<input id="y" type="text">
-		<input id="add" type="button" value="Add Numbers">
-		Result: <span id="result" />
-		<script type="text/javascript" src="js/calculator.js"></script>
-		<script>
-			calculator.init();
-		</script>
-	</body-->
+	<script type = "text/javascript">
+		function doAJAXstuff(theform) {
+		}
+        function performAjaxGetRequest(request, url, callback) {
+			request.open("GET", url);  
+			request.onreadystatechange = function () {     
+				if (request.readyState == 4)     
+					callback();   
+			}  
+			request.send();
+        }
+		function getUpdatedEstimatesLittleStuff_callback() {
+	    	if (request.status == 200) {
+                document.getElementById("littleStuffEstimate").innerHTML = request.responseText;
+			}
+			else if (request.status=404) {
+				alert("Server was not found: data returned is :\n"+request.responseText);
+			}
+		}
+		function getUpdatedEstimatesBigStuff_callback() {
+            console.log('here');
+	    	if (request.status == 200) {
+                document.getElementById("bigStuffEstimate").innerHTML = request.responseText;;
+			}
+			else if (request.status=404) {
+				alert("Server was not found: data returned is :\n"+request.responseText);
+			}
+		}
+		function getUpdatedEstimates() {
+			request1 = new XMLHttpRequest();
+			request2 = new XMLHttpRequest();
+            performAjaxGetRequest(request1, 'php/BigStuff.php?proc=getAvgTime', getUpdatedEstimatesBigStuff_callback);
+            performAjaxGetRequest(request2, 'php/LittleStuff.php?proc=getAvgTime', getUpdatedEstimatesLittleStuff_callback);
+        }
+		function execute_on_page_load() {
+            document.getElementById("myHeader").innerHTML = "AAAA";
+            getUpdatedEstimates()
+        }
+	</script> 
+    </body>
 </html>
