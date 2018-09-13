@@ -1,21 +1,13 @@
 <?php
 namespace AcmeProject;
-
 final class Acme
 {
-    private $num_orders;
     private $valid_items = array('Easter Basket (Big)', 'Easter Basket (Small)',
         'Toy Easter Egg', 'Stuffed Bunny Rabbit');
-    private $webroot = 'http://localhost:30001/';
+    private $webroot = '127.0.0.1:80/';
     private $shipped_notices;
     private $orders_issued;
     private $assembled_orders;
-
-    private function recalculateAvgTime(float $wait_time): void
-    {
-        $this->avg_time = (($this->num_orders * $this->avg_time) + $wait_time) / ($this->num_orders + 1);
-        $this->num_orders = $this->num_orders + 1;
-    }
 
     private function validateItem($item): void
     {
@@ -53,16 +45,6 @@ final class Acme
         }
     }
 
-    private function processBigStuff($order): void
-    {
-        return;
-    }
-
-    private function processLittleStuff($order): void
-    {
-        return;
-    }
-
     public function __construct()
     {
         $this->shipped_notices = [];
@@ -88,20 +70,20 @@ final class Acme
             #figure out if we need to order from big stuff
             if(in_array('Easter Basket (Big)', $order) || in_array('Easter Basket (Small)', $order)) {
                 if(in_array('Easter Basket (Big)', $order) && !in_array('Easter Basket (Small)', $order)) {
-                    $big_stuff_order_notice = 'Order For Easter Basket (Big) issued to Big Stuff';
-                    $big_stuff_url = $webroot . 'php/BigStuff.php?proc=processOrder&item[]=Easter%20Basket%20(Big)'
-                                   . '&shipTo=Acme';
+                    $big_stuff_order_notice = 'Order For Easter Basket (Big) issued to Big Stuff.';
+                    $big_stuff_url = $this->webroot . 'php/BigStuff.php?proc=processOrder&item[]=Easter%20Basket%20(Big)'
+                                   . '&shipTo=Acme&mysession=' . $GLOBALS['mysession'];
                 }
                 if(!in_array('Easter Basket (Big)', $order) && in_array('Easter Basket (Small)', $order)) {
-                    $big_stuff_order_notice = 'Order For Easter Basket (Small) issued to Big Stuff';
-                    $big_stuff_url = $webroot . 'php/BigStuff.php?proc=processOrder&item[]=Easter%20Basket%20(Small)'
-                                   . '&shipTo=Acme';
+                    $big_stuff_order_notice = 'Order For Easter Basket (Small) issued to Big Stuff.';
+                    $big_stuff_url = $this->webroot . 'php/BigStuff.php?proc=processOrder&item[]=Easter%20Basket%20(Small)'
+                                   . '&shipTo=Acme&mysession=' . $GLOBALS['mysession'];
                 }
                 if(in_array('Easter Basket (Big)', $order) && in_array('Easter Basket (Small)', $order)) {
                     $big_stuff_order_notice = 'Order For Easter Basket (Small) and Easter Basket (Big) ' 
-                                   . 'issued to Big Stuff';
-                    $big_stuff_url = $webroot . 'php/BigStuff.php?proc=processOrder&item[]=Easter%20Basket%20(Big)'
-                                   . '&item[]=Easter%20Basket%20(Small)&shipTo=Acme';
+                                   . 'issued to Big Stuff.';
+                    $big_stuff_url = $this->webroot . 'php/BigStuff.php?proc=processOrder&item[]=Easter%20Basket%20(Big)'
+                                   . '&item[]=Easter%20Basket%20(Small)&shipTo=Acme&mysession=' . $GLOBALS['mysession'];
                 }
                 $big_stuff_ch = curl_init($big_stuff_url);
                 curl_setopt($big_stuff_ch, CURLOPT_RETURNTRANSFER, true);
@@ -113,9 +95,9 @@ final class Acme
             $little_stuff_ch = NULL;
             #figure out if we need to order from little stuff
             if(in_array('Toy Easter Egg', $order)) {
-                $little_stuff_order_notice = 'Order For Toy Easter Egg issued to Little Stuff';
-                $little_stuff_url = $webroot . 'php/LittleStuff.php?proc=processOrder&item=Toy%20Easter%20Egg'
-                                   . '&shipTo=Acme';
+                $little_stuff_order_notice = 'Order For Toy Easter Egg issued to Little Stuff.';
+                $little_stuff_url =  $this->webroot . 'php/LittleStuff.php?proc=processOrder&item=Toy%20Easter%20Egg'
+                                   . '&shipTo=Acme&mysession=' . $GLOBALS['mysession'];
                 $little_stuff_ch = curl_init($little_stuff_url);
                 curl_setopt($little_stuff_ch, CURLOPT_RETURNTRANSFER, true);
                 curl_multi_add_handle($mh, $little_stuff_ch); 
@@ -130,10 +112,17 @@ final class Acme
                 array_push($this->orders_issued, $little_stuff_order_notice);
             }
 
+            $assembled_str = implode(', ', $order) . ' assembled at Acme.';
+            array_push($this->assembled_orders, $assembled_str);
+            
+            $notice_str = implode(', ', $order) . ' shipped from Acme to ' . $shipto . '.';
+            array_push($this->shipped_notices, $notice_str);
+
             #begin curl request logic
             if(!is_null($little_stuff_ch) || !is_null($big_stuff_ch)){
                 $running = NULL;
 				
+                session_write_close();
                 do {
                     curl_multi_exec($mh, $running);
                 } while ($running);
@@ -141,18 +130,15 @@ final class Acme
 				//close the handles if open
 				if(!is_null($big_stuff_ch)){
 					curl_multi_remove_handle($mh, $big_stuff_ch);
+                    curl_close($big_stuff_ch);
 				}
 				if(!is_null($little_stuff_ch)){
 					curl_multi_remove_handle($mh, $little_stuff_ch);
+                    curl_close($little_stuff_ch);
 				}
 				curl_multi_close($mh);
             }
-
-            $assembled_str = implode(', ', $order) . ' assembled at Acme.';
-            array_push($this->assembled_orders, $assembled_str);
             
-            $notice_str = implode(', ', $order) . ' shipped from Acme to ' . $shipto . '.';
-            array_push($this->shipped_notices, $notice_str);
             return implode(', ', $order);
         } 
 
@@ -181,6 +167,7 @@ final class Acme
 }
 $acme = NULL;
 session_start();
+$GLOBALS['mysession'] = session_id();
 if($_SESSION['acme']) {
     $acme = $_SESSION['acme'];
 } else {
@@ -188,15 +175,15 @@ if($_SESSION['acme']) {
     $_SESSION['acme'] = $acme;
 }
 if($_REQUEST['proc'] == 'processOrder') { 
-    printf("item: %s", $acme->processOrder($_REQUEST['item'], $_REQUEST['shipTo']));
+    printf("%s", $acme->processOrder($_REQUEST['item'], $_REQUEST['shipTo']));
 }
 if($_REQUEST['proc'] == 'getShippedNotices') {
-    printf("notices: %s", implode('; ', $acme->getShippedNotices()));
+    printf("%s", implode('&#13;&#10;', $acme->getShippedNotices()));
 }
 if($_REQUEST['proc'] == 'getOrderNotices') {
-    printf("notices: %s", implode('; ', $acme->getOrderNotices()));
+    printf("%s", implode('&#13;&#10;', $acme->getOrderNotices()));
 }
 if($_REQUEST['proc'] == 'getAssemblyNotices') {
-    printf("notices: %s", implode('; ', $acme->getAssemblyNotices()));
+    printf("%s", implode('&#13;&#10;', $acme->getAssemblyNotices()));
 }
 ?>

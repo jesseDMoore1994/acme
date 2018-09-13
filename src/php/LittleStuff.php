@@ -71,7 +71,11 @@ final class LittleStuff
     }
 }
 $little_stuff = NULL;
+if($_REQUEST['mysession']) { 
+    session_id($_REQUEST['mysession']);
+} 
 session_start();
+
 if($_SESSION['little_stuff']) {
     $little_stuff = $_SESSION['little_stuff'];
 } else {
@@ -79,12 +83,12 @@ if($_SESSION['little_stuff']) {
     $_SESSION['little_stuff'] = $little_stuff;
 }
 if($_REQUEST['proc'] == 'processOrder') { 
-    printf("item: %s", $little_stuff->processOrder($_REQUEST['item'], $_REQUEST['shipTo']));
+    printf("%s", $little_stuff->processOrder($_REQUEST['item'], $_REQUEST['shipTo']));
 }
 if($_REQUEST['proc'] == 'getAvgTime') { 
-    printf("avg time: %f", $little_stuff->getAvgTime());
+    printf("%f", $little_stuff->getAvgTime());
 }
 if($_REQUEST['proc'] == 'getShippedNotices') {
-    printf("notices: %s", implode('; ', $little_stuff->getShippedNotices()));
+    printf("%s", implode('&#13;&#10', $little_stuff->getShippedNotices()));
 }
 ?>
