@@ -251,7 +251,6 @@
         }
         function processOrderRequest(formdata) {
             //pull data out of form
-            console.log(formdata.grouped.value);
             order = {
                 stuffed_bunny: formdata.items[0].checked,
                 big_easter_basket: formdata.items[1].checked,
@@ -267,7 +266,6 @@
             if(!isWithinEstimate(order))
                 return;
 
-            console.log(order['grouped']);
             //if grouped, and more than one item is selected, we have to assemble at acme
             if(order['grouped'] && num_items > 1){
                 request8 = new XMLHttpRequest();
@@ -279,6 +277,10 @@
                 request8.send();
                 function request8_callback() {
                     if (request8.status == 200) {
+                        var d = new Date();
+                        document.getElementById("packagesReceived").innerHTML += d.getUTCHours() + ':';
+                        document.getElementById("packagesReceived").innerHTML += d.getUTCMinutes() + ':';
+                        document.getElementById("packagesReceived").innerHTML += d.getUTCSeconds() + ' - ';
                         document.getElementById("packagesReceived").innerHTML += 'Items received: ';
                         document.getElementById("packagesReceived").innerHTML += request8.responseText;
                         document.getElementById("packagesReceived").innerHTML += '&#13;&#10;';
@@ -290,7 +292,6 @@
                 }
             //if not grouped,  we query each server individually
             } else {
-                console.log('here');
                 if(num_items == 0) {
                     alert('No items selected, you can\'t order nothing!');
                     return;
@@ -306,6 +307,10 @@
                     request9.send();
                     function request9_callback() {
                         if (request9.status == 200) {
+                            var d = new Date();
+                            document.getElementById("packagesReceived").innerHTML += d.getUTCHours() + ':';
+                            document.getElementById("packagesReceived").innerHTML += d.getUTCMinutes() + ':';
+                            document.getElementById("packagesReceived").innerHTML += d.getUTCSeconds() + ' - ';
                             document.getElementById("packagesReceived").innerHTML += 'Items received: ';
                             document.getElementById("packagesReceived").innerHTML += request9.responseText;
                             document.getElementById("packagesReceived").innerHTML += '.&#13;&#10;';
@@ -335,6 +340,10 @@
                     request11.send();
                     function request11_callback() {
                         if (request11.status == 200) {
+                            var d = new Date();
+                            document.getElementById("packagesReceived").innerHTML += d.getUTCHours() + ':';
+                            document.getElementById("packagesReceived").innerHTML += d.getUTCMinutes() + ':';
+                            document.getElementById("packagesReceived").innerHTML += d.getUTCSeconds() + ' - ';
                             document.getElementById("packagesReceived").innerHTML += 'Items received: ';
                             document.getElementById("packagesReceived").innerHTML += request11.responseText;
                             document.getElementById("packagesReceived").innerHTML += '.&#13;&#10;';
@@ -356,6 +365,10 @@
                     request10.send();
                     function request10_callback() {
                         if (request10.status == 200) {
+                            var d = new Date();
+                            document.getElementById("packagesReceived").innerHTML += d.getUTCHours() + ':';
+                            document.getElementById("packagesReceived").innerHTML += d.getUTCMinutes() + ':';
+                            document.getElementById("packagesReceived").innerHTML += d.getUTCSeconds() + ' - ';
                             document.getElementById("packagesReceived").innerHTML += 'Items received: ';
                             document.getElementById("packagesReceived").innerHTML += request10.responseText;
                             document.getElementById("packagesReceived").innerHTML += '.&#13;&#10;';

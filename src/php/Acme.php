@@ -112,15 +112,6 @@ final class Acme
                 array_push($this->orders_issued, $little_stuff_order_notice);
             }
 
-            if(!is_null($big_stuff_order_notice) || !is_null($little_stuff_order_notice))
-            {
-                $assembled_str = date("H:i:s - ") . implode(', ', $order) . ' assembled at Acme.';
-                array_push($this->assembled_orders, $assembled_str);
-            }
-
-            $notice_str = date("H:i:s - ") . implode(', ', $order) . ' shipped from Acme to ' . $shipto . '.';
-            array_push($this->shipped_notices, $notice_str);
-
             #begin curl request logic
             if(!is_null($little_stuff_ch) || !is_null($big_stuff_ch)){
                 $running = NULL;
@@ -140,10 +131,24 @@ final class Acme
                     curl_close($little_stuff_ch);
 				}
 				curl_multi_close($mh);
+
             }
             
             return implode(', ', $order);
         } 
+
+    }
+
+    public function createAssembleAndShipNotices($order, $shipto): void
+    {
+        if(in_array('Toy Easter Egg', $order) || in_array('Easter Basket (Big)', $order) || in_array('Easter Basket (Small)', $order))
+        {
+            $assembled_str = date("H:i:s - ") . implode(', ', $order) . ' assembled at Acme.';
+            array_push($this->assembled_orders, $assembled_str);
+        }
+
+        $notice_str = date("H:i:s - ") . implode(', ', $order) . ' shipped from Acme to ' . $shipto . '.';
+        array_push($this->shipped_notices, $notice_str);
 
     }
 
@@ -179,7 +184,10 @@ if($_SESSION['acme']) {
     $_COOKIE['mycookie'] = session_id();
 }
 if($_REQUEST['proc'] == 'processOrder') { 
-    printf("%s", $acme->processOrder($_REQUEST['item'], $_REQUEST['shipTo']));
+    $items_str = $acme->processOrder($_REQUEST['item'], $_REQUEST['shipTo']);
+    session_start();
+    $_SESSION['acme']->createAssembleAndShipNotices($_REQUEST['item'], $_REQUEST['shipTo']);
+    printf("%s", $items_str);
 }
 if($_REQUEST['proc'] == 'getShippedNotices') {
     printf("%s", implode('&#13;&#10;', $acme->getShippedNotices()));
