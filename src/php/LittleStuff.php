@@ -52,7 +52,7 @@ final class LittleStuff
         $wait_time = 7.5 + 2.5 * (mt_rand() / mt_getrandmax());
         sleep($wait_time);
         $this->recalculateAvgTime($wait_time);
-        $notice_str = $order . ' shipped from Little Stuff to ' . $shipto . '.';
+        $notice_str = date("H:i:s - ") . $order . ' shipped from Little Stuff to ' . $shipto . '.';
         array_push($this->shipped_notices, $notice_str);
         return $order;
 
@@ -66,16 +66,14 @@ final class LittleStuff
     public function getShippedNotices(): array
     {
         $notices = $this->shipped_notices;
-        $this->shipped_notices = [];
         return $notices;
     }
 }
 $little_stuff = NULL;
-if($_REQUEST['mysession']) { 
+if(isset($_REQUEST['mysession'])) { 
     session_id($_REQUEST['mysession']);
 } 
 session_start();
-
 if($_SESSION['little_stuff']) {
     $little_stuff = $_SESSION['little_stuff'];
 } else {
@@ -89,6 +87,9 @@ if($_REQUEST['proc'] == 'getAvgTime') {
     printf("%f", $little_stuff->getAvgTime());
 }
 if($_REQUEST['proc'] == 'getShippedNotices') {
-    printf("%s", implode('&#13;&#10', $little_stuff->getShippedNotices()));
+    printf("%s", implode('&#13;&#10;', $little_stuff->getShippedNotices()));
+}
+if($_REQUEST['proc'] == 'getSessionId') {
+    printf("%s", session_id());
 }
 ?>

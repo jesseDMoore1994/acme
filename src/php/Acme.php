@@ -57,7 +57,7 @@ final class Acme
         #Make sure we have valid input
         $this->ensureIsValidOrder($order);
         if (gettype($order) == 'string') {
-            $notice_str = $order . ' shipped from Acme to ' . $shipto . '.';
+            $notice_str = date("H:i:s - ") . $order . ' shipped from Acme to ' . $shipto . '.';
             array_push($this->shipped_notices, $notice_str);
             return $order;
         } else {
@@ -70,17 +70,17 @@ final class Acme
             #figure out if we need to order from big stuff
             if(in_array('Easter Basket (Big)', $order) || in_array('Easter Basket (Small)', $order)) {
                 if(in_array('Easter Basket (Big)', $order) && !in_array('Easter Basket (Small)', $order)) {
-                    $big_stuff_order_notice = 'Order For Easter Basket (Big) issued to Big Stuff.';
+                    $big_stuff_order_notice = date("H:i:s - ") . 'Order For Easter Basket (Big) issued to Big Stuff.';
                     $big_stuff_url = $this->webroot . 'php/BigStuff.php?proc=processOrder&item[]=Easter%20Basket%20(Big)'
                                    . '&shipTo=Acme&mysession=' . $GLOBALS['mysession'];
                 }
                 if(!in_array('Easter Basket (Big)', $order) && in_array('Easter Basket (Small)', $order)) {
-                    $big_stuff_order_notice = 'Order For Easter Basket (Small) issued to Big Stuff.';
+                    $big_stuff_order_notice = date("H:i:s - ") . 'Order For Easter Basket (Small) issued to Big Stuff.';
                     $big_stuff_url = $this->webroot . 'php/BigStuff.php?proc=processOrder&item[]=Easter%20Basket%20(Small)'
                                    . '&shipTo=Acme&mysession=' . $GLOBALS['mysession'];
                 }
                 if(in_array('Easter Basket (Big)', $order) && in_array('Easter Basket (Small)', $order)) {
-                    $big_stuff_order_notice = 'Order For Easter Basket (Small) and Easter Basket (Big) ' 
+                    $big_stuff_order_notice = date("H:i:s - ") . 'Order For Easter Basket (Small) and Easter Basket (Big) ' 
                                    . 'issued to Big Stuff.';
                     $big_stuff_url = $this->webroot . 'php/BigStuff.php?proc=processOrder&item[]=Easter%20Basket%20(Big)'
                                    . '&item[]=Easter%20Basket%20(Small)&shipTo=Acme&mysession=' . $GLOBALS['mysession'];
@@ -95,7 +95,7 @@ final class Acme
             $little_stuff_ch = NULL;
             #figure out if we need to order from little stuff
             if(in_array('Toy Easter Egg', $order)) {
-                $little_stuff_order_notice = 'Order For Toy Easter Egg issued to Little Stuff.';
+                $little_stuff_order_notice = date("H:i:s - ") . 'Order For Toy Easter Egg issued to Little Stuff.';
                 $little_stuff_url =  $this->webroot . 'php/LittleStuff.php?proc=processOrder&item=Toy%20Easter%20Egg'
                                    . '&shipTo=Acme&mysession=' . $GLOBALS['mysession'];
                 $little_stuff_ch = curl_init($little_stuff_url);
@@ -112,10 +112,13 @@ final class Acme
                 array_push($this->orders_issued, $little_stuff_order_notice);
             }
 
-            $assembled_str = implode(', ', $order) . ' assembled at Acme.';
-            array_push($this->assembled_orders, $assembled_str);
-            
-            $notice_str = implode(', ', $order) . ' shipped from Acme to ' . $shipto . '.';
+            if(!is_null($big_stuff_order_notice) || !is_null($little_stuff_order_notice))
+            {
+                $assembled_str = date("H:i:s - ") . implode(', ', $order) . ' assembled at Acme.';
+                array_push($this->assembled_orders, $assembled_str);
+            }
+
+            $notice_str = date("H:i:s - ") . implode(', ', $order) . ' shipped from Acme to ' . $shipto . '.';
             array_push($this->shipped_notices, $notice_str);
 
             #begin curl request logic
@@ -147,25 +150,25 @@ final class Acme
     public function getShippedNotices(): array
     {
         $notices = $this->shipped_notices;
-        $this->shipped_notices = [];
         return $notices;
     }
 
     public function getOrderNotices(): array
     {
         $orders = $this->orders_issued;
-        $this->orders_issued = [];
         return $orders;
     }
 
     public function getAssemblyNotices(): array
     {
         $orders = $this->assembled_orders;
-        $this->assembled_orders = [];
         return $orders;
     }
 }
 $acme = NULL;
+if(isset($_COOKIE['mycookie'])) {
+    session_id($_COOKIE['mycookie']);
+}
 session_start();
 $GLOBALS['mysession'] = session_id();
 if($_SESSION['acme']) {
@@ -173,6 +176,7 @@ if($_SESSION['acme']) {
 } else {
     $acme = new Acme;
     $_SESSION['acme'] = $acme;
+    $_COOKIE['mycookie'] = session_id();
 }
 if($_REQUEST['proc'] == 'processOrder') { 
     printf("%s", $acme->processOrder($_REQUEST['item'], $_REQUEST['shipTo']));
@@ -185,5 +189,8 @@ if($_REQUEST['proc'] == 'getOrderNotices') {
 }
 if($_REQUEST['proc'] == 'getAssemblyNotices') {
     printf("%s", implode('&#13;&#10;', $acme->getAssemblyNotices()));
+}
+if($_REQUEST['proc'] == 'getSessionId') {
+    printf("%s", session_id());
 }
 ?>

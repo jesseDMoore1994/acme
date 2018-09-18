@@ -57,11 +57,11 @@ final class BigStuff
         sleep($wait_time);
         $this->recalculateAvgTime($wait_time);
         if (gettype($order) == 'string') {
-            $notice_str = $order . ' shipped from Big Stuff to ' . $shipto . '.';
+            $notice_str = date("H:i:s - ") . $order . ' shipped from Big Stuff to ' . $shipto . '.';
             array_push($this->shipped_notices, $notice_str);
             return $order;
         } else {
-            $notice_str = implode(', ', $order) . ' shipped from Big Stuff to ' . $shipto . '.';
+            $notice_str = date("H:i:s - ") . implode(', ', $order) . ' shipped from Big Stuff to ' . $shipto . '.';
             array_push($this->shipped_notices, $notice_str);
             return implode(', ', $order);
         } 
@@ -76,16 +76,14 @@ final class BigStuff
     public function getShippedNotices(): array
     {
         $notices = $this->shipped_notices;
-        $this->shipped_notices = [];
         return $notices;
     }
 }
 $big_stuff = NULL;
-if($_REQUEST['mysession']) { 
+if(isset($_REQUEST['mysession'])) { 
     session_id($_REQUEST['mysession']);
 } 
 session_start();
-
 if($_SESSION['big_stuff']) {
     $big_stuff = $_SESSION['big_stuff'];
 } else {
@@ -100,5 +98,8 @@ if($_REQUEST['proc'] == 'getAvgTime') {
 }
 if($_REQUEST['proc'] == 'getShippedNotices') {
     printf("%s", implode('&#13;&#10;', $big_stuff->getShippedNotices()));
+}
+if($_REQUEST['proc'] == 'getSessionId') {
+    printf("%s", session_id());
 }
 ?>
