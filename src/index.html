@@ -58,17 +58,23 @@
             document.getElementById("shippingNotices").innerHTML = '';
             document.getElementById("ordersAssembled").innerHTML = '';
             document.getElementById("ordersIssued").innerHTML = '';
-            shipped_notices.sort();
+            shipped_notices = shipped_notices.sort().filter(function(item, pos, ary) {
+                return !pos || item != ary[pos - 1];
+            });
             for (var i = 0; i < shipped_notices.length; i++) {
                 document.getElementById("shippingNotices").innerHTML += shipped_notices[i];
                 document.getElementById("shippingNotices").innerHTML += '&#13;&#10;';
             }
-            assembly_notices.sort();
+            assembly_notices = assembly_notices.sort().filter(function(item, pos, ary) {
+                return !pos || item != ary[pos - 1];
+            });
             for (var i = 0; i < assembly_notices.length; i++) {
                 document.getElementById("ordersAssembled").innerHTML += assembly_notices[i];
                 document.getElementById("ordersAssembled").innerHTML += '&#13;&#10;';
             }
-            order_notices.sort();
+            order_notices = order_notices.sort().filter(function(item, pos, ary) {
+                return !pos || item != ary[pos - 1];
+            });
             for (var i = 0; i < order_notices.length; i++) {
                 document.getElementById("ordersIssued").innerHTML += order_notices[i];
                 document.getElementById("ordersIssued").innerHTML += '&#13;&#10;';
