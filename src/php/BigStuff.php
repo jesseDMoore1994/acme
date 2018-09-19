@@ -84,7 +84,7 @@ if(isset($_REQUEST['mysession'])) {
     session_id($_REQUEST['mysession']);
 } 
 session_start();
-if($_SESSION['big_stuff']) {
+if(isset($_SESSION['big_stuff'])) {
     $big_stuff = $_SESSION['big_stuff'];
 } else {
     $big_stuff = new BigStuff;

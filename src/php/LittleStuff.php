@@ -74,7 +74,7 @@ if(isset($_REQUEST['mysession'])) {
     session_id($_REQUEST['mysession']);
 } 
 session_start();
-if($_SESSION['little_stuff']) {
+if(isset($_SESSION['little_stuff'])) {
     $little_stuff = $_SESSION['little_stuff'];
 } else {
     $little_stuff = new LittleStuff;

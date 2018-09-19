@@ -185,7 +185,8 @@ if($_SESSION['acme']) {
 }
 if($_REQUEST['proc'] == 'processOrder') { 
     $items_str = $acme->processOrder($_REQUEST['item'], $_REQUEST['shipTo']);
-    session_start();
+    if(strpos($items_str, 'Easter Basket') !== false || strpos($items_str, 'Toy Easter Egg') !== false)
+        session_start();
     $_SESSION['acme']->createAssembleAndShipNotices($_REQUEST['item'], $_REQUEST['shipTo']);
     printf("%s", $items_str);
 }

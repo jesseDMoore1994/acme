@@ -116,6 +116,7 @@
             }
         }
         function getShippedNotices() {
+            shipped_notices = [];
             request3 = new XMLHttpRequest();
             request3.open("GET", 'php/BigStuff.php?proc=getShippedNotices');
             request3.onreadystatechange = function () {
@@ -166,6 +167,7 @@
             }
         }
         function getAssemblyNotices() {
+            assembly_notices = [];
             request6 = new XMLHttpRequest();
             request6.open("GET", 'php/Acme.php?proc=getAssemblyNotices');
             request6.onreadystatechange = function () {
@@ -184,6 +186,7 @@
             }
         }
         function getOrderNotices() {
+            order_notices = [];
             request7 = new XMLHttpRequest();
             request7.open("GET", 'php/Acme.php?proc=getOrderNotices');
             request7.onreadystatechange = function () {
