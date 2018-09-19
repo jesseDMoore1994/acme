@@ -176,7 +176,7 @@ if(isset($_COOKIE['mycookie'])) {
 }
 session_start();
 $GLOBALS['mysession'] = session_id();
-if($_SESSION['acme']) {
+if(isset($_SESSION['acme'])) {
     $acme = $_SESSION['acme'];
 } else {
     $acme = new Acme;
